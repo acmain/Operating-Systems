@@ -1,0 +1,156 @@
+SQL> Select * from cat;
+
+TABLE_NAME   TABLE_TYPE                                                         
+------------ -----------                                                        
+DEPT         TABLE                                                              
+EMPLOYEE     TABLE                                                              
+EXPENSE      TABLE                                                              
+TRIP         TABLE                                                              
+
+SQL> desc Dept;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CODE                                      NOT NULL CHAR(5)
+ NAME                                      NOT NULL CHAR(10)
+ PHONE                                     NOT NULL CHAR(8)
+ CONTACT                                            CHAR(15)
+
+SQL> desc Employee;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                      NOT NULL CHAR(15)
+ DEPT                                      NOT NULL CHAR(5)
+ JOIN_DATE                                          DATE
+
+SQL> desc Expense;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ TRIP_ID                                   NOT NULL NUMBER(38)
+ RECEIPT_NO                                NOT NULL NUMBER(38)
+ AMOUNT                                    NOT NULL NUMBER(6,2)
+ TYPE                                               CHAR(2)
+ SUBMITTED                                          DATE
+
+SQL> desc Trip;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ EMP_ID                                             NUMBER(38)
+ TO_CITY                                            CHAR(15)
+ DEP_DATE                                  NOT NULL DATE
+ RETURN_DATE                               NOT NULL DATE
+ EST_COST                                  NOT NULL NUMBER(6,2)
+
+SQL> 
+SQL> select a.owner, a.table_name, column_name primary_key,  a.constraint_name
+  2        from   user_cons_columns a, user_constraints b
+  3        where  a.constraint_name = b.constraint_name and constraint_type = 'P';
+
+OWNER        TABLE_NAME   PRIMARY_KEY  CONSTRAINT_NAME                          
+------------ ------------ ------------ ------------------------------           
+DBCLASS19    EXPENSE      RECEIPT_NO   SYS_C0011602                             
+DBCLASS19    EXPENSE      TRIP_ID      SYS_C0011602                             
+DBCLASS19    TRIP         ID           SYS_C0011587                             
+DBCLASS19    EMPLOYEE     ID           SYS_C0011574                             
+DBCLASS19    DEPT         CODE         SYS_C0011564                             
+
+SQL> select a.owner, a.table_name, a.column_name foreign_key,
+  2               b.table_name Referring_table, b.column_name Primary_key
+  3        from   user_cons_columns a, user_cons_columns b, user_constraints c
+  4        where  a.constraint_name = c.constraint_name and c.r_constraint_name = b.constraint_name;
+
+OWNER        TABLE_NAME   FOREIGN_KEY  REFERRING_TABLE PRIMARY_KEY              
+------------ ------------ ------------ --------------- ------------             
+DBCLASS19    EMPLOYEE     DEPT         DEPT            CODE                     
+DBCLASS19    TRIP         EMP_ID       EMPLOYEE        ID                       
+DBCLASS19    EXPENSE      TRIP_ID      TRIP            ID                       
+
+SQL> select owner, table_name, search_condition from
+  2               user_constraints where search_condition is not null;
+
+OWNER        TABLE_NAME   SEARCH_CONDITION                                      
+------------ ------------ ---------------------------------------------         
+DBCLASS19    DEPT         "NAME" IS NOT NULL                                    
+DBCLASS19    DEPT         "PHONE" IS NOT NULL                                   
+DBCLASS19    EMPLOYEE     "NAME" IS NOT NULL                                    
+DBCLASS19    EMPLOYEE     "DEPT" IS NOT NULL                                    
+DBCLASS19    TRIP         "DEP_DATE" IS NOT NULL                                
+DBCLASS19    TRIP         "RETURN_DATE" IS NOT NULL                             
+DBCLASS19    TRIP         "EST_COST" IS NOT NULL                                
+DBCLASS19    TRIP         (Est_Cost>=1.00) AND (Est_Cost<=4000.00)              
+DBCLASS19    EXPENSE      "AMOUNT" IS NOT NULL                                  
+DBCLASS19    EXPENSE      Amount>=1.00                                          
+DBCLASS19    EXPENSE      (Type='T') OR (Type='H') OR (Type='M')                
+
+11 rows selected.
+
+SQL> select * from Dept;
+
+CODE  NAME       PHONE    CONTACT                                               
+----- ---------- -------- ---------------                                       
+MATH  Math       314-1592 Leonhard Euler                                        
+PHYS  Physics    980-6650 Isaac Newton                                          
+CHEM  Chemistry  602-2140 Marie Curie                                           
+BIOL  Biology    466-9201 Charles Darwin                                        
+ENGL  English    424-2564 Edgar A Poe                                           
+GEOL  Geology    455-2018                                                       
+MUSC  Music      867-5309 Johann S Bach                                         
+RUSS  Russian    200-2316 Vladamir Putin                                        
+HIST  History    509-0049 Julius Caesar                                         
+ECON  Economics  206-2504 Warren Buffett                                        
+
+10 rows selected.
+
+SQL> select * from Employee;
+
+        ID NAME            DEPT  JOIN_DATE                                      
+---------- --------------- ----- ---------                                      
+         1 Pythagoras      MATH                                                 
+         8 Albert Einstein PHYS  14-MAR-79                                      
+         6 Carl F Gauss    PHYS  30-APR-77                                      
+         2 Alfred Nobel    CHEM  21-OCT-33                                      
+         5 John Dalton     CHEM  06-SEP-66                                      
+         9 J R R Tolkien   ENGL  03-JAN-92                                      
+         3 Stephen King    ENGL  21-SEP-47                                      
+        10 George Orwell   ENGL  25-JUN-03                                      
+         4 J K Rowling     ENGL  31-JUL-65                                      
+         7 Joseph Stalin   RUSS  18-DEC-78                                      
+
+10 rows selected.
+
+SQL> select * from Trip;
+
+        ID     EMP_ID TO_CITY         DEP_DATE  RETURN_DA   EST_COST            
+---------- ---------- --------------- --------- --------- ----------            
+         1          9 Boston          20-DEC-17 02-JAN-18    2750.99            
+         2          8 New York City   01-JAN-18 05-JAN-18        600            
+         3         10                 01-JAN-18 06-JAN-18        950            
+         4          7 Volgograd       05-JAN-18 05-FEB-18       3500            
+         5          9 London          11-JAN-18 15-JAN-18     1280.5            
+         6          2 Paris           18-JAN-18 21-JAN-18     999.01            
+         7          1 Little Rock     20-JAN-18 21-JAN-18         86            
+         8          6 Beijing         25-JAN-18 01-MAR-18    3999.99            
+         9          8 Cairo           30-JAN-18 03-FEB-18    2142.73            
+        10          7 Moscow          06-FEB-18 12-FEB-18    1111.11            
+
+10 rows selected.
+
+SQL> select * from Expense;
+
+   TRIP_ID RECEIPT_NO     AMOUNT TY SUBMITTED                                   
+---------- ---------- ---------- -- ---------                                   
+         1          1     300.91 T  04-JAN-18                                   
+         1          2     762.12 H  04-JAN-18                                   
+         1          3      92.49 M  05-JAN-18                                   
+         1          4      52.18 M                                              
+         2          1     560.84 T  08-JAN-18                                   
+         2          2    1024.08 H  08-JAN-18                                   
+         4          1    1232.18 T  06-FEB-18                                   
+         4          2    1501.26 H  06-FEB-18                                   
+         4          3     604.29 M  06-FEB-18                                   
+         7          1      34.85 T  28-JAN-18                                   
+
+10 rows selected.
+
+SQL> spool off
